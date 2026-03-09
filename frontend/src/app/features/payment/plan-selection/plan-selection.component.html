@@ -1,0 +1,38 @@
+<div class="plans-container">
+  <div class="page-header">
+    <h1>Choose Your Plan</h1>
+    <p>Unlock more features and accelerate your exam preparation</p>
+  </div>
+
+  <app-loading-spinner *ngIf="isLoading" message="Loading plans..."></app-loading-spinner>
+
+  <div class="plans-grid" *ngIf="!isLoading">
+    <mat-card *ngFor="let plan of plans" class="plan-card" [class.popular]="plan.isPopular">
+      <div class="popular-ribbon" *ngIf="plan.isPopular">Most Popular</div>
+
+      <div class="plan-icon" [style.background]="getPlanColor(plan.type)">
+        <mat-icon>{{ getPlanIcon(plan.type) }}</mat-icon>
+      </div>
+
+      <h2>{{ plan.name }}</h2>
+
+      <div class="plan-price">
+        {{ formatPrice(plan.price, plan.currency) }}
+        <span class="period" *ngIf="plan.price > 0">{{ getPeriod(plan) }}</span>
+      </div>
+
+      <ul class="plan-features">
+        <li *ngFor="let feature of plan.features">
+          <mat-icon>check_circle</mat-icon>
+          {{ feature }}
+        </li>
+      </ul>
+
+      <button mat-raised-button class="select-btn"
+              [color]="plan.isPopular ? 'primary' : 'basic'"
+              [routerLink]="plan.price > 0 ? ['/payment/checkout', plan.id] : null">
+        {{ plan.price === 0 ? 'Current Plan' : 'Select Plan' }}
+      </button>
+    </mat-card>
+  </div>
+</div>

@@ -1,0 +1,86 @@
+<div class="checkout-container">
+  <div class="page-header">
+    <a mat-button routerLink="/payment/plans" color="primary">
+      <mat-icon>arrow_back</mat-icon> Back to Plans
+    </a>
+    <h1>Checkout</h1>
+  </div>
+
+  <app-loading-spinner *ngIf="isLoading" message="Loading plan details..."></app-loading-spinner>
+
+  <ng-container *ngIf="plan && !isLoading">
+    <mat-card class="checkout-card">
+      <h2>Order Summary</h2>
+      <div class="plan-summary">
+        <div>
+          <h3>{{ plan.name }} Plan</h3>
+          <p style="font-size: 0.85rem; color: #888;">
+            {{ plan.durationDays >= 365 ? 'Annual' : 'Monthly' }} subscription
+          </p>
+        </div>
+        <div class="price">{{ formatPrice(plan.price, plan.currency) }}</div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 4px; font-size: 0.9rem; color: #555;">
+        <div *ngFor="let feature of plan.features" style="display: flex; align-items: center; gap: 8px;">
+          <mat-icon style="font-size: 16px; width: 16px; height: 16px; color: #4caf50;">check</mat-icon>
+          {{ feature }}
+        </div>
+      </div>
+    </mat-card>
+
+    <mat-card class="checkout-card">
+      <h2>Payment Method</h2>
+      <div class="payment-method">
+        <div
+          *ngFor="let method of paymentMethods"
+          class="method-option"
+          [class.selected]="selectedMethod === method.id"
+          (click)="selectedMethod = method.id">
+          <div class="method-icon" [style.background]="method.color">
+            {{ method.name.substring(0, 2).toUpperCase() }}
+          </div>
+          <div class="method-info">
+            <h4>{{ method.name }}</h4>
+            <p>{{ method.desc }}</p>
+          </div>
+          <mat-icon *ngIf="selectedMethod === method.id" style="color: #388e3c; margin-left: auto;">
+            check_circle
+          </mat-icon>
+        </div>
+      </div>
+    </mat-card>
+
+    <mat-card class="checkout-card">
+      <mat-checkbox [(ngModel)]="autoRenew" color="primary">
+        Enable auto-renewal
+      </mat-checkbox>
+      <p style="font-size: 0.8rem; color: #888; margin-top: 8px; margin-left: 32px;">
+        Your subscription will automatically renew at the end of the billing period.
+        You can cancel anytime.
+      </p>
+
+      <mat-divider style="margin: 20px 0;"></mat-divider>
+
+      <div style="display: flex; justify-content: space-between; font-size: 1.1rem; font-weight: 600;">
+        <span>Total</span>
+        <span style="color: #1b5e20;">{{ formatPrice(plan.price, plan.currency) }}</span>
+      </div>
+
+      <button mat-raised-button color="primary" class="checkout-btn"
+              [disabled]="isProcessing"
+              (click)="onCheckout()">
+        <mat-spinner *ngIf="isProcessing" diameter="20" style="display: inline-block;"></mat-spinner>
+        <span *ngIf="!isProcessing">
+          <mat-icon style="vertical-align: middle; margin-right: 8px;">lock</mat-icon>
+          Pay {{ formatPrice(plan.price, plan.currency) }}
+        </span>
+      </button>
+
+      <div class="secure-notice">
+        <mat-icon style="font-size: 16px; width: 16px; height: 16px;">security</mat-icon>
+        Secured by 256-bit SSL encryption
+      </div>
+    </mat-card>
+  </ng-container>
+</div>

@@ -1,0 +1,56 @@
+# IDE
+.vs/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.cache
+*.dll
+*.exe
+*.pdb
+
+# Node
+node_modules/
+dist/
+.angular/
+.sass-cache/
+npm-debug.log*
+yarn-error.log*
+
+# Environment
+.env
+*.local
+appsettings.*.local.json
+
+# Docker
+docker-compose.override.yml
+
+# SSL certs
+nginx/ssl/*.pem
+nginx/ssl/*.key
+nginx/ssl/*.crt
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Coverage
+coverage/
+*.lcov
+TestResults/
+
+# Logs
+logs/
+*.log
+
+# Temporary
+tmp/
+temp/

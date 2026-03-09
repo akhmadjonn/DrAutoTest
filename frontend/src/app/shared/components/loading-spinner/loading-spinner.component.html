@@ -1,0 +1,4 @@
+<div [ngClass]="overlay ? 'spinner-overlay' : 'spinner-inline'">
+  <mat-spinner [diameter]="diameter" color="primary"></mat-spinner>
+  <div class="spinner-message" *ngIf="message">{{ message }}</div>
+</div>

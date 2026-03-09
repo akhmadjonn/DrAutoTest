@@ -1,0 +1,98 @@
+<app-loading-spinner *ngIf="isLoading$ | async" [overlay]="true" message="Loading exam..."></app-loading-spinner>
+
+<div class="exam-container" *ngIf="exam$ | async as exam">
+  <div class="exam-header">
+    <div class="exam-progress-info">
+      <span class="progress-text">
+        {{ (answeredCount$ | async) || 0 }} / {{ exam.totalQuestions }} answered
+      </span>
+      <mat-progress-bar
+        mode="determinate"
+        [value]="(progress$ | async) || 0"
+        style="width: 200px; border-radius: 8px;">
+      </mat-progress-bar>
+    </div>
+
+    <app-timer
+      [totalSeconds]="exam.timeLimitMinutes * 60"
+      [countDown]="true"
+      (timeUp)="onTimeUp(exam.id)">
+    </app-timer>
+
+    <div class="action-btns">
+      <button mat-stroked-button color="warn" (click)="onAbandonExam(exam.id)">
+        <mat-icon>close</mat-icon> Quit
+      </button>
+      <button mat-raised-button color="primary" (click)="onFinishExam(exam.id)">
+        <mat-icon>check</mat-icon> Finish
+      </button>
+    </div>
+  </div>
+
+  <ng-container *ngIf="currentQuestion$ | async as cq">
+    <app-question-card
+      [questionNumber]="((currentIndex$ | async) || 0) + 1"
+      [totalQuestions]="exam.totalQuestions"
+      [questionText]="cq.question.text"
+      [questionImage]="cq.question.image"
+      [answers]="cq.question.answers"
+      [selectedAnswerId]="cq.selectedAnswerId"
+      [showResult]="false"
+      [categoryName]="cq.question.categoryName"
+      [disabled]="cq.isAnswered || (isSubmitting$ | async) || false"
+      (answerSelected)="onAnswerSelected($event, exam.id, cq.questionId)">
+    </app-question-card>
+
+    <div class="question-nav">
+      <button mat-stroked-button class="nav-btn"
+              [disabled]="(currentIndex$ | async) === 0"
+              (click)="onPrevious((currentIndex$ | async) || 0)">
+        <mat-icon>arrow_back</mat-icon> Previous
+      </button>
+
+      <button mat-stroked-button
+              [color]="cq.isMarked ? 'warn' : 'basic'"
+              (click)="onMarkQuestion(exam.id, cq.questionId)">
+        <mat-icon>{{ cq.isMarked ? 'bookmark' : 'bookmark_border' }}</mat-icon>
+        {{ cq.isMarked ? 'Marked' : 'Mark' }}
+      </button>
+
+      <button mat-raised-button color="primary" class="nav-btn"
+              [disabled]="((currentIndex$ | async) || 0) >= exam.totalQuestions - 1"
+              (click)="onNext((currentIndex$ | async) || 0, exam.totalQuestions)">
+        Next <mat-icon>arrow_forward</mat-icon>
+      </button>
+    </div>
+  </ng-container>
+
+  <div class="question-grid">
+    <h3>Question Navigator</h3>
+    <div class="grid-items">
+      <div
+        *ngFor="let q of exam.questions; let i = index"
+        class="grid-item"
+        [ngClass]="getGridItemClass(i, (currentIndex$ | async) || 0, q)"
+        (click)="onNavigate(i)">
+        {{ i + 1 }}
+      </div>
+    </div>
+    <div class="grid-legend">
+      <div class="legend-item">
+        <div class="legend-dot" style="background: #e3f2fd; border: 1px solid #1976d2;"></div>
+        Current
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background: #e8f5e9; border: 1px solid #4caf50;"></div>
+        Answered
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background: #fff3e0; border: 1px solid #ff9800;"></div>
+        Marked
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background: white; border: 1px solid #e0e0e0;"></div>
+        Unanswered
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,55 @@
+<div class="practice-container">
+  <div class="practice-header">
+    <div>
+      <a mat-button routerLink="/practice" color="primary">
+        <mat-icon>arrow_back</mat-icon> All Categories
+      </a>
+      <h2>{{ currentQuestion?.categoryName || 'Practice' }}</h2>
+    </div>
+    <div class="practice-stats">
+      <span class="stat-chip">Total: {{ totalAnswered }}</span>
+      <span class="stat-chip correct">Correct: {{ correctCount }}</span>
+      <span class="stat-chip wrong">Wrong: {{ wrongCount }}</span>
+      <span class="stat-chip">{{ getAccuracy() }}%</span>
+    </div>
+  </div>
+
+  <app-loading-spinner *ngIf="isLoading" message="Loading question..."></app-loading-spinner>
+
+  <ng-container *ngIf="currentQuestion && !isLoading">
+    <app-question-card
+      [questionNumber]="totalAnswered + (showResult ? 0 : 1)"
+      [totalQuestions]="0"
+      [questionText]="currentQuestion.text"
+      [questionImage]="currentQuestion.image"
+      [answers]="getAnswers()"
+      [selectedAnswerId]="selectedAnswerId || undefined"
+      [showResult]="showResult"
+      [showExplanation]="showResult"
+      [explanation]="currentQuestion.explanation"
+      [categoryName]="currentQuestion.categoryName"
+      [disabled]="showResult"
+      (answerSelected)="onAnswerSelected($event)">
+    </app-question-card>
+
+    <div class="feedback-box" *ngIf="showResult" [ngClass]="isCorrect ? 'feedback-correct' : 'feedback-wrong'">
+      <mat-icon [style.color]="isCorrect ? '#4caf50' : '#f44336'">
+        {{ isCorrect ? 'check_circle' : 'cancel' }}
+      </mat-icon>
+      <div>
+        <h4>{{ isCorrect ? 'Correct!' : 'Incorrect' }}</h4>
+        <p *ngIf="!isCorrect">Review the correct answer highlighted in green above.</p>
+        <p *ngIf="isCorrect">Great job! Keep up the good work.</p>
+      </div>
+    </div>
+
+    <div class="actions-row">
+      <button mat-stroked-button routerLink="/practice">
+        <mat-icon>arrow_back</mat-icon> Back to Categories
+      </button>
+      <button mat-raised-button color="primary" (click)="loadNextQuestion()">
+        Next Question <mat-icon>arrow_forward</mat-icon>
+      </button>
+    </div>
+  </ng-container>
+</div>

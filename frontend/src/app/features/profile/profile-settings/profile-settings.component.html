@@ -1,0 +1,128 @@
+<div class="profile-container">
+  <div class="page-header">
+    <h1>Profile Settings</h1>
+  </div>
+
+  <mat-tab-group>
+    <mat-tab label="Profile">
+      <mat-card class="profile-card" style="margin-top: 24px;">
+        <div class="avatar-section" *ngIf="user$ | async as user">
+          <div class="avatar">{{ getInitials(user.firstName, user.lastName) }}</div>
+          <div>
+            <h2 style="margin-bottom: 4px;">{{ user.firstName }} {{ user.lastName }}</h2>
+            <p style="color: #666; font-size: 0.9rem;">{{ user.email }}</p>
+            <mat-chip-set>
+              <mat-chip highlighted>{{ user.subscriptionType | titlecase }}</mat-chip>
+              <mat-chip>{{ user.role | titlecase }}</mat-chip>
+            </mat-chip-set>
+          </div>
+        </div>
+
+        <mat-divider style="margin-bottom: 24px;"></mat-divider>
+
+        <h2>Edit Profile</h2>
+        <form [formGroup]="profileForm" (ngSubmit)="onSaveProfile()">
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>First Name</mat-label>
+              <input matInput formControlName="firstName">
+              <mat-error>Required</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Last Name</mat-label>
+              <input matInput formControlName="lastName">
+              <mat-error>Required</mat-error>
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Email</mat-label>
+            <input matInput formControlName="email" type="email">
+            <mat-icon matPrefix>email</mat-icon>
+            <mat-error>Valid email required</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Phone</mat-label>
+            <input matInput formControlName="phone">
+            <mat-icon matPrefix>phone</mat-icon>
+            <mat-error>Required</mat-error>
+          </mat-form-field>
+
+          <button mat-raised-button color="primary" class="save-btn" type="submit"
+                  [disabled]="profileForm.invalid || isSaving">
+            {{ isSaving ? 'Saving...' : 'Save Changes' }}
+          </button>
+        </form>
+      </mat-card>
+    </mat-tab>
+
+    <mat-tab label="Password">
+      <mat-card class="profile-card" style="margin-top: 24px;">
+        <h2>Change Password</h2>
+        <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Current Password</mat-label>
+            <input matInput formControlName="currentPassword"
+                   [type]="hideCurrentPassword ? 'password' : 'text'">
+            <mat-icon matSuffix style="cursor:pointer" (click)="hideCurrentPassword = !hideCurrentPassword">
+              {{ hideCurrentPassword ? 'visibility_off' : 'visibility' }}
+            </mat-icon>
+            <mat-error>Required</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>New Password</mat-label>
+            <input matInput formControlName="newPassword"
+                   [type]="hideNewPassword ? 'password' : 'text'">
+            <mat-icon matSuffix style="cursor:pointer" (click)="hideNewPassword = !hideNewPassword">
+              {{ hideNewPassword ? 'visibility_off' : 'visibility' }}
+            </mat-icon>
+            <mat-error>Min 6 characters</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Confirm New Password</mat-label>
+            <input matInput formControlName="confirmPassword" type="password">
+            <mat-error>Required</mat-error>
+          </mat-form-field>
+
+          <button mat-raised-button color="primary" class="save-btn" type="submit"
+                  [disabled]="passwordForm.invalid || isChangingPassword">
+            {{ isChangingPassword ? 'Changing...' : 'Change Password' }}
+          </button>
+        </form>
+      </mat-card>
+    </mat-tab>
+
+    <mat-tab label="Subscription">
+      <mat-card class="profile-card" style="margin-top: 24px;">
+        <h2>Subscription Information</h2>
+
+        <div class="sub-info" *ngIf="subscription; else noSub">
+          <h3>{{ subscription.planName }} Plan</h3>
+          <div class="sub-detail">Status: <strong>{{ subscription.status | titlecase }}</strong></div>
+          <div class="sub-detail">Started: {{ subscription.startDate | date:'longDate' }}</div>
+          <div class="sub-detail">Expires: {{ subscription.endDate | date:'longDate' }}</div>
+          <div class="sub-detail">Auto-renew: {{ subscription.autoRenew ? 'Yes' : 'No' }}</div>
+          <div style="margin-top: 16px;">
+            <button mat-raised-button color="primary" routerLink="/payment/plans">
+              Upgrade Plan
+            </button>
+          </div>
+        </div>
+
+        <ng-template #noSub>
+          <div style="text-align: center; padding: 32px;">
+            <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #ccc;">card_membership</mat-icon>
+            <p style="margin: 12px 0; color: #888;">You are on the Free plan</p>
+            <button mat-raised-button color="primary" routerLink="/payment/plans">
+              Upgrade Now
+            </button>
+          </div>
+        </ng-template>
+      </mat-card>
+    </mat-tab>
+  </mat-tab-group>
+</div>

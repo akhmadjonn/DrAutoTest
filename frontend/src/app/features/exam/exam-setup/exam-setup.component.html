@@ -1,0 +1,88 @@
+<div class="setup-container">
+  <div class="setup-header">
+    <h1>Set Up Your Exam</h1>
+    <p>Choose your exam type and configure the settings</p>
+  </div>
+
+  <div class="exam-types">
+    <div
+      *ngFor="let et of examTypes"
+      class="exam-type-card"
+      [class.selected]="examType === et.type"
+      (click)="selectExamType(et.type)">
+      <div class="type-icon" [style.background]="et.color">
+        <mat-icon>{{ et.icon }}</mat-icon>
+      </div>
+      <h3>{{ et.title }}</h3>
+      <p>{{ et.desc }}</p>
+    </div>
+  </div>
+
+  <mat-card class="config-section">
+    <h2>Exam Settings</h2>
+
+    <div class="config-row" *ngIf="examType === 'category'">
+      <label>Category</label>
+      <mat-form-field appearance="outline" class="config-input">
+        <mat-label>Select Category</mat-label>
+        <mat-select [(value)]="selectedCategoryId">
+          <mat-option *ngFor="let cat of categories" [value]="cat.id">
+            {{ cat.name }} ({{ cat.questionCount }} questions)
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="config-row" *ngIf="examType !== 'quick'">
+      <label>Number of Questions</label>
+      <div class="config-input">
+        <div class="preset-chips">
+          <div
+            *ngFor="let preset of questionPresets"
+            class="preset-chip"
+            [class.active]="questionCount === preset"
+            (click)="questionCount = preset">
+            {{ preset }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="config-row">
+      <label>Time Limit (minutes)</label>
+      <div class="config-input">
+        <div class="preset-chips">
+          <div
+            *ngFor="let preset of timePresets"
+            class="preset-chip"
+            [class.active]="timeLimitMinutes === preset"
+            (click)="timeLimitMinutes = preset">
+            {{ preset }} min
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <mat-divider style="margin: 24px 0;"></mat-divider>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <div>
+        <div style="font-size: 0.9rem; color: #666;">Questions: <strong>{{ questionCount }}</strong></div>
+        <div style="font-size: 0.9rem; color: #666;">Time: <strong>{{ timeLimitMinutes }} minutes</strong></div>
+      </div>
+      <div style="font-size: 0.9rem; color: #666;">
+        Type: <strong>{{ examType | titlecase }}</strong>
+      </div>
+    </div>
+
+    <button mat-raised-button color="primary" class="start-btn"
+            [disabled]="!canStart() || (isLoading$ | async)"
+            (click)="startExam()">
+      <mat-spinner *ngIf="isLoading$ | async" diameter="20" style="display: inline-block;"></mat-spinner>
+      <span *ngIf="!(isLoading$ | async)">
+        <mat-icon style="vertical-align: middle; margin-right: 8px;">play_arrow</mat-icon>
+        Start Exam
+      </span>
+    </button>
+  </mat-card>
+</div>

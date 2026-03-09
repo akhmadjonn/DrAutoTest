@@ -1,0 +1,20 @@
+<div style="padding: 24px; min-width: 320px;">
+  <div class="dialog-icon">
+    <mat-icon [ngClass]="getIconClass()">{{ getIconName() }}</mat-icon>
+  </div>
+
+  <div class="dialog-title">{{ data.title }}</div>
+  <div class="dialog-message">{{ data.message }}</div>
+
+  <div class="dialog-actions">
+    <button mat-stroked-button (click)="onCancel()">
+      {{ data.cancelText || 'Cancel' }}
+    </button>
+    <button
+      mat-raised-button
+      [color]="data.type === 'danger' ? 'warn' : 'primary'"
+      (click)="onConfirm()">
+      {{ data.confirmText || 'Confirm' }}
+    </button>
+  </div>
+</div>

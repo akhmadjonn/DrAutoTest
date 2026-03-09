@@ -1,0 +1,123 @@
+<div class="dashboard-container">
+  <div class="welcome-section" *ngIf="user$ | async as user">
+    <h1>Welcome back, {{ user.firstName }}!</h1>
+    <p>Continue your exam preparation journey</p>
+  </div>
+
+  <div class="streak-section" *ngIf="summary?.currentStreak">
+    <mat-icon>local_fire_department</mat-icon>
+    <div class="streak-info">
+      <h3>{{ summary!.currentStreak }} Day Streak!</h3>
+      <p>Keep practicing daily to maintain your streak</p>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon" style="background: #4caf50;">
+        <mat-icon>quiz</mat-icon>
+      </div>
+      <div class="stat-info">
+        <h3>{{ summary?.totalExams || 0 }}</h3>
+        <p>Exams Taken</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon" style="background: #2196f3;">
+        <mat-icon>percent</mat-icon>
+      </div>
+      <div class="stat-info">
+        <h3>{{ summary?.averageScore || 0 }}%</h3>
+        <p>Average Score</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon" style="background: #ff9800;">
+        <mat-icon>help_outline</mat-icon>
+      </div>
+      <div class="stat-info">
+        <h3>{{ summary?.totalQuestionsAnswered || 0 }}</h3>
+        <p>Questions Answered</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon" style="background: #9c27b0;">
+        <mat-icon>emoji_events</mat-icon>
+      </div>
+      <div class="stat-info">
+        <h3>{{ summary?.bestScore || 0 }}%</h3>
+        <p>Best Score</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-grid">
+    <mat-card class="section-card">
+      <h2>Quick Actions</h2>
+      <div class="quick-actions">
+        <button mat-stroked-button class="action-btn" routerLink="/exam/setup" color="primary">
+          <mat-icon>play_circle</mat-icon>
+          <span>Start Exam</span>
+        </button>
+        <button mat-stroked-button class="action-btn" routerLink="/practice">
+          <mat-icon>school</mat-icon>
+          <span>Practice</span>
+        </button>
+        <button mat-stroked-button class="action-btn" routerLink="/progress">
+          <mat-icon>trending_up</mat-icon>
+          <span>Progress</span>
+        </button>
+        <button mat-stroked-button class="action-btn" routerLink="/payment/plans">
+          <mat-icon>card_membership</mat-icon>
+          <span>Upgrade</span>
+        </button>
+      </div>
+    </mat-card>
+
+    <mat-card class="section-card">
+      <h2>Recent Exams</h2>
+      <div class="exam-list" *ngIf="recentExams.length > 0; else noExams">
+        <div class="exam-item" *ngFor="let exam of recentExams">
+          <div class="exam-item-info">
+            <h4>{{ exam.type | titlecase }} Exam</h4>
+            <p>{{ exam.startedAt | date:'MMM d, y - h:mm a' }} &middot; {{ exam.totalQuestions }} questions</p>
+          </div>
+          <span class="exam-score" [ngClass]="getScoreClass(exam.score)">
+            {{ exam.score }}%
+          </span>
+        </div>
+      </div>
+      <ng-template #noExams>
+        <div class="no-data">
+          <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #ccc;">quiz</mat-icon>
+          <p style="margin-top: 12px;">No exams taken yet</p>
+          <button mat-raised-button color="primary" routerLink="/exam/setup" style="margin-top: 12px;">
+            Take Your First Exam
+          </button>
+        </div>
+      </ng-template>
+    </mat-card>
+  </div>
+
+  <div style="margin-top: 24px;">
+    <mat-card class="section-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h2 style="margin-bottom: 0;">Accuracy Overview</h2>
+        <a mat-button color="primary" routerLink="/progress">View Details</a>
+      </div>
+      <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
+        <span style="font-size: 0.9rem; color: #666; width: 120px;">Overall Accuracy</span>
+        <mat-progress-bar mode="determinate" [value]="summary?.accuracyPercentage || 0"
+                          style="flex: 1; border-radius: 8px;"></mat-progress-bar>
+        <span style="font-weight: 600; min-width: 50px; text-align: right;">{{ summary?.accuracyPercentage || 0 }}%</span>
+      </div>
+      <p style="font-size: 0.85rem; color: #888;">
+        {{ summary?.correctAnswersTotal || 0 }} correct out of {{ summary?.totalQuestionsAnswered || 0 }} questions &middot;
+        Total study time: {{ summary?.totalTimeSpentMinutes || 0 }} minutes
+      </p>
+    </mat-card>
+  </div>
+</div>

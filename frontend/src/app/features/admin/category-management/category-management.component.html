@@ -1,0 +1,101 @@
+<div class="management-container">
+  <div class="back-link">
+    <a mat-button routerLink="/admin" color="primary">
+      <mat-icon>arrow_back</mat-icon> Back to Admin
+    </a>
+  </div>
+
+  <div class="page-header">
+    <h1>Category Management</h1>
+    <button mat-raised-button color="primary" (click)="toggleForm()">
+      <mat-icon>{{ showForm ? 'close' : 'add' }}</mat-icon>
+      {{ showForm ? 'Cancel' : 'Add Category' }}
+    </button>
+  </div>
+
+  <mat-card class="form-card" *ngIf="showForm">
+    <h2>{{ isEditing ? 'Edit Category' : 'New Category' }}</h2>
+    <form [formGroup]="categoryForm" (ngSubmit)="onSave()">
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Category Name</mat-label>
+        <input matInput formControlName="name" placeholder="e.g., Road Signs">
+        <mat-error>Name is required (min 2 chars)</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Description</mat-label>
+        <textarea matInput formControlName="description" rows="3"
+                  placeholder="Brief description of the category"></textarea>
+        <mat-error>Description is required</mat-error>
+      </mat-form-field>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Icon</mat-label>
+          <mat-select formControlName="icon">
+            <mat-option *ngFor="let icon of iconOptions" [value]="icon">
+              <mat-icon style="vertical-align: middle; margin-right: 8px;">{{ icon }}</mat-icon>
+              {{ icon }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Color</mat-label>
+          <mat-select formControlName="color">
+            <mat-option *ngFor="let color of colorOptions" [value]="color">
+              <span class="color-preview" [style.background]="color"></span>
+              {{ color }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div style="display: flex; gap: 12px; justify-content: flex-end;">
+        <button mat-stroked-button type="button" (click)="toggleForm()">Cancel</button>
+        <button mat-raised-button color="primary" type="submit"
+                [disabled]="categoryForm.invalid || isSaving">
+          {{ isSaving ? 'Saving...' : (isEditing ? 'Update' : 'Create') }}
+        </button>
+      </div>
+    </form>
+  </mat-card>
+
+  <app-loading-spinner *ngIf="isLoading" message="Loading categories..."></app-loading-spinner>
+
+  <div class="category-list" cdkDropList (cdkDropListDropped)="onDrop($event)" *ngIf="!isLoading">
+    <div class="category-item" *ngFor="let cat of categories" cdkDrag>
+      <mat-icon class="drag-handle" cdkDragHandle>drag_indicator</mat-icon>
+
+      <div class="cat-icon-box" [style.background]="cat.color || '#4caf50'">
+        <mat-icon>{{ cat.icon || 'category' }}</mat-icon>
+      </div>
+
+      <div class="cat-info">
+        <h3>{{ cat.name }}</h3>
+        <p>{{ cat.description }}</p>
+      </div>
+
+      <div class="cat-meta">
+        {{ cat.questionCount }} questions
+      </div>
+
+      <div class="cat-actions">
+        <button mat-icon-button color="primary" (click)="onEditCategory(cat)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="onDeleteCategory(cat)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading && categories.length === 0" style="text-align: center; padding: 48px; color: #999;">
+    <mat-icon style="font-size: 64px; width: 64px; height: 64px;">category</mat-icon>
+    <p style="margin-top: 16px; font-size: 1.1rem;">No categories yet</p>
+    <button mat-raised-button color="primary" (click)="toggleForm()" style="margin-top: 12px;">
+      Create First Category
+    </button>
+  </div>
+</div>

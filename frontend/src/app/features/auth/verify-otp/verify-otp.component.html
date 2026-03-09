@@ -1,0 +1,54 @@
+<div class="otp-container">
+  <mat-card class="otp-card">
+    <div class="otp-icon">
+      <mat-icon>verified</mat-icon>
+    </div>
+
+    <h1>Verify OTP</h1>
+    <p class="subtitle">
+      We sent a verification code to<br>
+      <span class="contact-info">{{ contact }}</span>
+    </p>
+
+    <div class="error-message" *ngIf="error$ | async as error">
+      {{ error }}
+    </div>
+
+    <form [formGroup]="otpForm" (ngSubmit)="onSubmit()">
+      <div class="otp-inputs">
+        <input
+          *ngFor="let digit of otpDigits; let i = index"
+          type="text"
+          maxlength="1"
+          [value]="digit"
+          (input)="onDigitInput($event, i)"
+          (keydown)="onDigitKeydown($event, i)"
+          inputmode="numeric"
+          pattern="[0-9]*">
+      </div>
+
+      <button mat-raised-button color="primary" class="verify-btn" type="submit"
+              [disabled]="otpForm.invalid || (isLoading$ | async)">
+        <mat-spinner *ngIf="isLoading$ | async" diameter="20" style="display: inline-block;"></mat-spinner>
+        <span *ngIf="!(isLoading$ | async)">Verify Code</span>
+      </button>
+    </form>
+
+    <div class="resend-section">
+      <ng-container *ngIf="!canResend">
+        Resend code in <span class="countdown">{{ countdown }}s</span>
+      </ng-container>
+      <ng-container *ngIf="canResend">
+        Didn't receive the code?
+        <button mat-button color="primary" (click)="onResend()">Resend</button>
+      </ng-container>
+    </div>
+
+    <div style="margin-top: 16px;">
+      <a mat-button routerLink="/auth/login" color="primary">
+        <mat-icon>arrow_back</mat-icon>
+        Back to Login
+      </a>
+    </div>
+  </mat-card>
+</div>

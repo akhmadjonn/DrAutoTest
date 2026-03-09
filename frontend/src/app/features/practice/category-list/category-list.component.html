@@ -1,0 +1,41 @@
+<div class="practice-container">
+  <div class="page-header">
+    <h1>Practice by Category</h1>
+    <p>Choose a category to practice and improve your knowledge</p>
+  </div>
+
+  <app-loading-spinner *ngIf="isLoading" message="Loading categories..."></app-loading-spinner>
+
+  <div class="categories-grid" *ngIf="!isLoading">
+    <mat-card class="category-card" *ngFor="let category of categories" [routerLink]="[category.id]">
+      <div class="cat-icon-wrapper" [style.background]="category.color || '#4caf50'">
+        <mat-icon>{{ category.icon || 'category' }}</mat-icon>
+      </div>
+      <h3>{{ category.name }}</h3>
+      <p class="description">{{ category.description }}</p>
+
+      <div class="progress-info">
+        <span>Progress: {{ getProgress(category.id) }}%</span>
+        <span>Accuracy: {{ getAccuracy(category.id) }}%</span>
+      </div>
+      <mat-progress-bar
+        mode="determinate"
+        [value]="getProgress(category.id)"
+        style="border-radius: 8px; height: 6px;">
+      </mat-progress-bar>
+
+      <div class="question-count">
+        {{ category.questionCount }} questions available
+      </div>
+
+      <button mat-raised-button color="primary" class="practice-btn">
+        Start Practice
+      </button>
+    </mat-card>
+  </div>
+
+  <div *ngIf="!isLoading && categories.length === 0" style="text-align: center; padding: 60px; color: #999;">
+    <mat-icon style="font-size: 64px; width: 64px; height: 64px;">category</mat-icon>
+    <p style="margin-top: 16px; font-size: 1.1rem;">No categories available yet</p>
+  </div>
+</div>

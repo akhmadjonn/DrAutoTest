@@ -1,0 +1,91 @@
+<app-loading-spinner *ngIf="isLoading" [overlay]="true" message="Loading results..."></app-loading-spinner>
+
+<div class="result-container" *ngIf="result">
+  <div class="result-hero" [ngClass]="result.passed ? 'passed' : 'failed'">
+    <div class="result-icon">
+      <mat-icon>{{ result.passed ? 'emoji_events' : 'sentiment_dissatisfied' }}</mat-icon>
+    </div>
+    <h1>{{ result.passed ? 'Congratulations!' : 'Keep Practicing!' }}</h1>
+    <p>{{ result.passed ? 'You passed the exam!' : 'You need ' + result.passingScore + '% to pass.' }}</p>
+    <div class="score-display">{{ result.score }}%</div>
+    <div class="score-label">Your Score</div>
+
+    <div class="stats-row">
+      <div class="stat">
+        <div class="stat-value">{{ result.exam.correctAnswers }}</div>
+        <div class="stat-label">Correct</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">{{ result.exam.wrongAnswers }}</div>
+        <div class="stat-label">Wrong</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">{{ result.exam.skippedQuestions }}</div>
+        <div class="stat-label">Skipped</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">{{ result.exam.timeSpentSeconds | timeFormat }}</div>
+        <div class="stat-label">Time Spent</div>
+      </div>
+    </div>
+  </div>
+
+  <mat-card class="breakdown-card">
+    <h2>Category Breakdown</h2>
+    <div class="category-row" *ngFor="let cat of result.categoryBreakdown">
+      <div class="cat-info">
+        <span class="name">{{ cat.categoryName }}</span>
+      </div>
+      <div class="cat-bar">
+        <mat-progress-bar
+          mode="determinate"
+          [value]="cat.percentage"
+          [color]="cat.percentage >= 70 ? 'primary' : 'warn'"
+          style="border-radius: 8px;">
+        </mat-progress-bar>
+      </div>
+      <span class="cat-score" [style.color]="getScoreColor(cat.percentage)">
+        {{ cat.correctAnswers }}/{{ cat.totalQuestions }} ({{ cat.percentage }}%)
+      </span>
+    </div>
+  </mat-card>
+
+  <mat-card class="breakdown-card" *ngIf="result.wrongQuestions.length > 0">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <h2 style="margin-bottom: 0;">Wrong Answers ({{ result.wrongQuestions.length }})</h2>
+      <button mat-button color="primary" (click)="showWrongAnswers = !showWrongAnswers">
+        {{ showWrongAnswers ? 'Hide' : 'Show' }} Details
+      </button>
+    </div>
+
+    <div class="wrong-answers-section" *ngIf="showWrongAnswers">
+      <div class="wrong-item" *ngFor="let wq of result.wrongQuestions; let i = index">
+        <app-question-card
+          [questionNumber]="i + 1"
+          [totalQuestions]="result.wrongQuestions.length"
+          [questionText]="wq.question.text"
+          [questionImage]="wq.question.image"
+          [answers]="wq.question.answers"
+          [selectedAnswerId]="wq.selectedAnswerId"
+          [showResult]="true"
+          [showExplanation]="true"
+          [explanation]="wq.question.explanation"
+          [categoryName]="wq.question.categoryName"
+          [disabled]="true">
+        </app-question-card>
+      </div>
+    </div>
+  </mat-card>
+
+  <div class="action-buttons">
+    <button mat-raised-button color="primary" routerLink="/exam/setup">
+      <mat-icon>replay</mat-icon> Take Another Exam
+    </button>
+    <button mat-stroked-button routerLink="/home/dashboard">
+      <mat-icon>dashboard</mat-icon> Go to Dashboard
+    </button>
+    <button mat-stroked-button routerLink="/progress">
+      <mat-icon>trending_up</mat-icon> View Progress
+    </button>
+  </div>
+</div>

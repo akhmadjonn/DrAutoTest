@@ -1,0 +1,67 @@
+<div class="login-container">
+  <mat-card class="login-card">
+    <div class="login-header">
+      <h1>Welcome Back</h1>
+      <p>Sign in to continue your exam preparation</p>
+    </div>
+
+    <div class="error-message" *ngIf="error$ | async as error">
+      <mat-icon>error_outline</mat-icon>
+      {{ error }}
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Email or Phone Number</mat-label>
+        <input matInput formControlName="emailOrPhone" placeholder="Enter email or phone">
+        <mat-icon matPrefix>person</mat-icon>
+        <mat-error *ngIf="loginForm.get('emailOrPhone')?.hasError('required')">
+          Email or phone is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Password</mat-label>
+        <input matInput formControlName="password"
+               [type]="hidePassword ? 'password' : 'text'"
+               placeholder="Enter password">
+        <mat-icon matPrefix>lock</mat-icon>
+        <mat-icon matSuffix class="hide-password" (click)="hidePassword = !hidePassword">
+          {{ hidePassword ? 'visibility_off' : 'visibility' }}
+        </mat-icon>
+        <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
+          Password is required
+        </mat-error>
+        <mat-error *ngIf="loginForm.get('password')?.hasError('minlength')">
+          Password must be at least 6 characters
+        </mat-error>
+      </mat-form-field>
+
+      <button mat-raised-button color="primary" class="login-btn" type="submit"
+              [disabled]="loginForm.invalid || (isLoading$ | async)">
+        <mat-spinner *ngIf="isLoading$ | async" diameter="20" style="display: inline-block;"></mat-spinner>
+        <span *ngIf="!(isLoading$ | async)">Sign In</span>
+      </button>
+    </form>
+
+    <div style="text-align: center; margin-top: 12px;">
+      <button mat-button color="primary" (click)="onOtpLogin()"
+              [disabled]="!loginForm.get('emailOrPhone')?.value">
+        Sign in with OTP instead
+      </button>
+    </div>
+
+    <div class="divider-text">
+      <span>OR</span>
+    </div>
+
+    <button mat-stroked-button class="google-btn" (click)="onGoogleLogin()">
+      <mat-icon>g_mobiledata</mat-icon>
+      Continue with Google
+    </button>
+
+    <div class="signup-link">
+      Don't have an account? <a routerLink="/auth/register">Sign up</a>
+    </div>
+  </mat-card>
+</div>

@@ -1,0 +1,34 @@
+<mat-card class="question-card">
+  <mat-card-content>
+    <div class="question-meta">
+      <mat-chip-set>
+        <mat-chip *ngIf="categoryName">{{ categoryName }}</mat-chip>
+        <mat-chip highlighted>Question {{ questionNumber }} of {{ totalQuestions }}</mat-chip>
+      </mat-chip-set>
+    </div>
+
+    <img *ngIf="questionImage" [src]="questionImage" alt="Question image" class="question-image">
+
+    <div class="question-text">{{ questionText }}</div>
+
+    <div class="answers-list">
+      <div
+        *ngFor="let answer of answers; let i = index"
+        class="answer-option"
+        [ngClass]="getAnswerClass(answer)"
+        (click)="selectAnswer(answer.id)">
+        <div class="answer-letter">{{ letters[i] }}</div>
+        <span class="answer-text">{{ answer.text }}</span>
+        <span class="answer-icon" *ngIf="showResult">
+          <mat-icon *ngIf="answer.isCorrect" style="color: #4caf50;">check_circle</mat-icon>
+          <mat-icon *ngIf="selectedAnswerId === answer.id && !answer.isCorrect" style="color: #f44336;">cancel</mat-icon>
+        </span>
+      </div>
+    </div>
+
+    <div class="explanation-box" *ngIf="showExplanation && explanation">
+      <h4>Explanation</h4>
+      <p>{{ explanation }}</p>
+    </div>
+  </mat-card-content>
+</mat-card>

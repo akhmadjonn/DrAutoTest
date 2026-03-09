@@ -1,0 +1,97 @@
+<div class="progress-container">
+  <div class="page-header">
+    <h1>Your Progress</h1>
+    <p>Track your learning journey and identify areas for improvement</p>
+  </div>
+
+  <app-loading-spinner *ngIf="isLoading" message="Loading progress data..."></app-loading-spinner>
+
+  <ng-container *ngIf="!isLoading && summary">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <mat-icon style="color: #4caf50;">quiz</mat-icon>
+        <div class="value">{{ summary.totalExams }}</div>
+        <div class="label">Total Exams</div>
+      </div>
+      <div class="stat-card">
+        <mat-icon style="color: #2196f3;">percent</mat-icon>
+        <div class="value">{{ summary.averageScore }}%</div>
+        <div class="label">Average Score</div>
+      </div>
+      <div class="stat-card">
+        <mat-icon style="color: #ff9800;">check_circle</mat-icon>
+        <div class="value">{{ summary.accuracyPercentage }}%</div>
+        <div class="label">Accuracy</div>
+      </div>
+      <div class="stat-card">
+        <mat-icon style="color: #9c27b0;">emoji_events</mat-icon>
+        <div class="value">{{ summary.bestScore }}%</div>
+        <div class="label">Best Score</div>
+      </div>
+      <div class="stat-card">
+        <mat-icon style="color: #f44336;">local_fire_department</mat-icon>
+        <div class="value">{{ summary.currentStreak }}</div>
+        <div class="label">Day Streak</div>
+      </div>
+      <div class="stat-card">
+        <mat-icon style="color: #00bcd4;">schedule</mat-icon>
+        <div class="value">{{ summary.totalTimeSpentMinutes }}m</div>
+        <div class="label">Study Time</div>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <mat-card class="chart-card">
+        <h2>Questions by Category</h2>
+        <canvas baseChart
+                [data]="pieChartData"
+                [options]="pieChartOptions"
+                type="pie">
+        </canvas>
+      </mat-card>
+
+      <mat-card class="chart-card">
+        <h2>Score Improvement Over Time</h2>
+        <canvas baseChart
+                [data]="lineChartData"
+                [options]="lineChartOptions"
+                type="line">
+        </canvas>
+      </mat-card>
+    </div>
+
+    <div class="categories-section">
+      <h2>Category Progress</h2>
+      <div class="category-item" *ngFor="let cat of categoryProgress">
+        <div class="cat-icon" [style.background]="cat.categoryColor || '#4caf50'">
+          <mat-icon>{{ cat.categoryIcon || 'category' }}</mat-icon>
+        </div>
+        <div class="cat-details">
+          <h4>{{ cat.categoryName }}</h4>
+          <p>{{ cat.answeredQuestions }} / {{ cat.totalQuestions }} questions answered</p>
+        </div>
+        <div class="cat-progress">
+          <mat-progress-bar mode="determinate" [value]="cat.progressPercentage" style="border-radius: 8px;"></mat-progress-bar>
+          <div style="font-size: 0.75rem; color: #888; margin-top: 4px; text-align: right;">{{ cat.progressPercentage }}%</div>
+        </div>
+        <div class="cat-accuracy" [style.color]="getAccuracyColor(cat.accuracy)">
+          {{ cat.accuracy }}%
+        </div>
+      </div>
+    </div>
+
+    <div class="weak-areas" *ngIf="weakAreas.length > 0">
+      <h2>Areas Needing Improvement</h2>
+      <div class="weak-item" *ngFor="let area of weakAreas">
+        <div>
+          <h4>{{ area.categoryName }}</h4>
+          <p>Accuracy: {{ area.accuracy }}% &middot; {{ area.totalAttempts }} attempts &middot;
+            Recommended: {{ area.recommendedPractice }} more questions</p>
+        </div>
+        <button mat-raised-button color="accent" [routerLink]="['/practice', area.categoryId]">
+          Practice Now
+        </button>
+      </div>
+    </div>
+  </ng-container>
+</div>

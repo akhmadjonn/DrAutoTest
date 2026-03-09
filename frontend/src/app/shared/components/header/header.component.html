@@ -1,0 +1,65 @@
+<mat-toolbar class="header-toolbar">
+  <div class="logo" routerLink="/">
+    <mat-icon>directions_car</mat-icon>
+    <span>DrAutoTest</span>
+  </div>
+
+  <nav class="nav-links" *ngIf="isAuthenticated$ | async">
+    <a routerLink="/home/dashboard" routerLinkActive="active">Dashboard</a>
+    <a routerLink="/exam/setup" routerLinkActive="active">Exams</a>
+    <a routerLink="/practice" routerLinkActive="active">Practice</a>
+    <a routerLink="/progress" routerLinkActive="active">Progress</a>
+    <a routerLink="/admin" routerLinkActive="active" *ngIf="isAdmin$ | async">Admin</a>
+  </nav>
+
+  <span class="spacer"></span>
+
+  <ng-container *ngIf="isAuthenticated$ | async; else loginButtons">
+    <ng-container *ngIf="user$ | async as user">
+      <span class="sub-badge" [ngClass]="getSubscriptionClass(user.subscriptionType)">
+        {{ user.subscriptionType }}
+      </span>
+
+      <button mat-icon-button [matMenuTriggerFor]="userMenu">
+        <div class="user-menu-btn">
+          <div class="user-avatar">
+            {{ getInitials(user.firstName, user.lastName) }}
+          </div>
+        </div>
+      </button>
+
+      <mat-menu #userMenu="matMenu">
+        <div style="padding: 12px 16px; border-bottom: 1px solid #eee;">
+          <div style="font-weight: 600;">{{ user.firstName }} {{ user.lastName }}</div>
+          <div style="font-size: 0.8rem; color: #666;">{{ user.email }}</div>
+        </div>
+        <button mat-menu-item routerLink="/home/dashboard">
+          <mat-icon>dashboard</mat-icon>
+          <span>Dashboard</span>
+        </button>
+        <button mat-menu-item routerLink="/profile">
+          <mat-icon>person</mat-icon>
+          <span>Profile Settings</span>
+        </button>
+        <button mat-menu-item routerLink="/payment/plans">
+          <mat-icon>card_membership</mat-icon>
+          <span>Subscription</span>
+        </button>
+        <mat-divider></mat-divider>
+        <button mat-menu-item routerLink="/admin" *ngIf="isAdmin$ | async">
+          <mat-icon>admin_panel_settings</mat-icon>
+          <span>Admin Panel</span>
+        </button>
+        <button mat-menu-item (click)="onLogout()">
+          <mat-icon>logout</mat-icon>
+          <span>Logout</span>
+        </button>
+      </mat-menu>
+    </ng-container>
+  </ng-container>
+
+  <ng-template #loginButtons>
+    <a mat-button routerLink="/auth/login" style="color: white;">Login</a>
+    <a mat-raised-button routerLink="/auth/register" color="accent">Sign Up</a>
+  </ng-template>
+</mat-toolbar>

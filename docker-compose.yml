@@ -1,0 +1,137 @@
+version: '3.8'
+
+services:
+  # ==================== Database ====================
+  postgres:
+    image: postgres:16-alpine
+    container_name: drautotest-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: drautotest
+      POSTGRES_USER: drautotest_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-StrongPassword123!}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - drautotest-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U drautotest_user -d drautotest"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==================== Cache ====================
+  redis:
+    image: redis:7-alpine
+    container_name: drautotest-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-RedisPassword123!}
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - drautotest-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-RedisPassword123!}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==================== Object Storage ====================
+  minio:
+    image: minio/minio:latest
+    container_name: drautotest-minio
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin123}
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    networks:
+      - drautotest-network
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==================== Backend API ====================
+  api:
+    build:
+      context: ./backend
+      dockerfile: src/DrAutoTest.API/Dockerfile
+    container_name: drautotest-api
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:5000
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=drautotest;Username=drautotest_user;Password=${DB_PASSWORD:-StrongPassword123!}"
+      ConnectionStrings__Redis: "redis:6379,password=${REDIS_PASSWORD:-RedisPassword123!}"
+      JwtSettings__Secret: ${JWT_SECRET:-YourSuperSecretKeyThatIsAtLeast32CharactersLong!}
+      JwtSettings__Issuer: DrAutoTest
+      JwtSettings__Audience: DrAutoTest
+      JwtSettings__AccessTokenExpirationMinutes: 15
+      JwtSettings__RefreshTokenExpirationDays: 30
+      MinioSettings__Endpoint: minio:9000
+      MinioSettings__AccessKey: ${MINIO_ACCESS_KEY:-minioadmin}
+      MinioSettings__SecretKey: ${MINIO_SECRET_KEY:-minioadmin123}
+      MinioSettings__BucketName: drautotest
+      MinioSettings__UseSSL: "false"
+    ports:
+      - "5000:5000"
+    networks:
+      - drautotest-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # ==================== Frontend ====================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: drautotest-frontend
+    restart: unless-stopped
+    ports:
+      - "4200:80"
+    networks:
+      - drautotest-network
+    depends_on:
+      - api
+
+  # ==================== Reverse Proxy ====================
+  nginx:
+    image: nginx:alpine
+    container_name: drautotest-nginx
+    restart: unless-stopped
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - drautotest-network
+    depends_on:
+      - api
+      - frontend
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
+
+networks:
+  drautotest-network:
+    driver: overlay
+    attachable: true
