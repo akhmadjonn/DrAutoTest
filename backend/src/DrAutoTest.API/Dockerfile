@@ -3,6 +3,15 @@ WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
+# Development stage - used by docker-compose.dev.yml
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS development
+WORKDIR /app
+EXPOSE 5000
+EXPOSE 5001
+ENV ASPNETCORE_URLS=http://+:5000
+ENV ASPNETCORE_ENVIRONMENT=Development
+ENTRYPOINT ["dotnet", "watch", "run", "--project", "src/DrAutoTest.API/DrAutoTest.API.csproj"]
+
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src

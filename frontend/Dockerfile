@@ -1,3 +1,12 @@
+# Development stage - used by docker-compose.dev.yml
+FROM node:20-alpine AS development
+WORKDIR /app
+COPY package.json package-lock.json* ./
+RUN npm ci --legacy-peer-deps
+COPY . .
+EXPOSE 4200
+CMD ["npx", "ng", "serve", "--host", "0.0.0.0", "--port", "4200"]
+
 # Stage 1: Build the Angular application
 FROM node:20-alpine AS build
 
